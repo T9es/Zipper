@@ -2,7 +2,8 @@
     'use strict';
 
     function supportedLocale(value) {
-        return /^pl(?:[-_]|$)/i.test(String(value || '').trim()) ? 'pl' : 'en';
+        var match = /^(de|es|fr|it|ja|ko|nl|pl|pt|ru|zh)(?:[-_]|$)/i.exec(String(value || '').trim());
+        return match ? match[1].toLowerCase() : 'en';
     }
 
     function selectedLocale() {

@@ -3,10 +3,10 @@
   "name": "Zipper",
   "overview": "Download original media and its Jellyfin-associated external subtitles together in a ZIP package.",
   "description": "Zipper adds a Jellyfin Web action for packaging movies, episodes, seasons, or series. By default it includes the original media and all external subtitle tracks associated with the selected Jellyfin media source; recognized tracks or languages can be selected when desired. It preserves source bytes and does not transcode media or generate subtitles. Tested with Jellyfin Server/Web 12.0.0 and File Transformation 3.0.1.0.",
-  "version": "1.0.0.0",
+  "version": "1.0.1.0",
   "targetAbi": "12.0.0.0",
   "framework": "net10.0",
   "owner": "T9es",
   "category": "General",
-  "changelog": "Initial release."
+  "changelog": "Add UI localization catalogs for German, Spanish, French, Italian, Japanese, Korean, Dutch, Brazilian Portuguese, Russian, and Simplified Chinese."
 }

@@ -342,8 +342,18 @@ public sealed class ZipperAssetsController : ControllerBase
     {
         var resource = language switch
         {
+            "de" => "Jellyfin.Plugin.Zipper.Web.locales.de.json",
             "en" => "Jellyfin.Plugin.Zipper.Web.locales.en.json",
+            "es" => "Jellyfin.Plugin.Zipper.Web.locales.es.json",
+            "fr" => "Jellyfin.Plugin.Zipper.Web.locales.fr.json",
+            "it" => "Jellyfin.Plugin.Zipper.Web.locales.it.json",
+            "ja" => "Jellyfin.Plugin.Zipper.Web.locales.ja.json",
+            "ko" => "Jellyfin.Plugin.Zipper.Web.locales.ko.json",
+            "nl" => "Jellyfin.Plugin.Zipper.Web.locales.nl.json",
             "pl" => "Jellyfin.Plugin.Zipper.Web.locales.pl.json",
+            "pt" => "Jellyfin.Plugin.Zipper.Web.locales.pt.json",
+            "ru" => "Jellyfin.Plugin.Zipper.Web.locales.ru.json",
+            "zh" => "Jellyfin.Plugin.Zipper.Web.locales.zh.json",
             _ => null
         };
         return resource is null ? NotFound() : EmbeddedAsset(resource, "application/json; charset=utf-8");
