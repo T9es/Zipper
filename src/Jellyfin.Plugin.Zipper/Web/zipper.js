@@ -409,7 +409,7 @@
     function visible(node) {
         if (!node || !node.isConnected) return false;
         for (var current = node; current && current !== document.documentElement; current = current.parentElement) {
-            if (current.hidden || current.classList.contains('hide') || current.getAttribute('aria-hidden') === 'true') return false;
+            if (current.hidden || current.classList.contains('hide')) return false;
             var style;
             try { style = window.getComputedStyle(current); } catch (_) { style = null; }
             if (style && (style.display === 'none' || style.visibility === 'hidden' || style.visibility === 'collapse')) return false;
@@ -480,140 +480,10 @@
         return item;
     }
 
-    function isFunctionalPresentationClass(className) {
-        return /^btn/i.test(className)
-            || /^(?:hide|hidden|active|itemaction|selected|disabled|focus|focused|playing|played|watched|favorite|playstate|rating|download|play)(?:$|[-_])/i.test(className);
-    }
-
-    function syncPresentationClasses(target, source) {
-        if (!target) return;
-        var syncState = target._zipperPresentationSync;
-        if (!syncState) {
-            syncState = { base: new Set(Array.prototype.slice.call(target.classList)), inherited: new Set() };
-            target._zipperPresentationSync = syncState;
-        }
-        var next = new Set();
-        if (source && source.classList) {
-            Array.prototype.forEach.call(source.classList, function (className) {
-                if (!isFunctionalPresentationClass(className) && !syncState.base.has(className)) next.add(className);
-            });
-        }
-        syncState.inherited.forEach(function (className) {
-            if (!next.has(className) && !syncState.base.has(className)) target.classList.remove(className);
-        });
-        next.forEach(function (className) { if (!target.classList.contains(className)) target.classList.add(className); });
-        syncState.inherited = next;
-    }
-
-    function findNativeDetailIcon(content) {
-        if (!content) return null;
-        return content.querySelector('svg') || content.querySelector('.detailButton-icon, .material-icons, [class*="icon"]');
-    }
-
-    function findNativeDetailLabel(content, icon) {
-        if (!content) return null;
-        var nodes = content.querySelectorAll('*');
-        for (var i = nodes.length - 1; i >= 0; i--) {
-            var node = nodes[i];
-            if (node.children.length || !String(node.textContent || '').trim() || icon && (node === icon || icon.contains(node))) continue;
-            for (var parent = node; parent && parent !== content; parent = parent.parentElement) {
-                if (parent.classList && parent.classList.length) return parent;
-            }
-        }
-        return null;
-    }
-
-    function cloneNativeDetailIcon(source) {
-        var clone = source.cloneNode(true);
-        var nodes = [clone].concat(Array.prototype.slice.call(clone.querySelectorAll('*')));
-        nodes.forEach(function (node) {
-            Array.prototype.slice.call(node.attributes || []).forEach(function (attribute) {
-                var name = attribute.name.toLowerCase();
-                if (name === 'id' || name === 'tabindex' || name.indexOf('data-') === 0 || /^on/i.test(name)) {
-                    node.removeAttribute(attribute.name);
-                } else if ((name === 'href' || name === 'xlink:href') && attribute.value.charAt(0) !== '#') {
-                    node.removeAttribute(attribute.name);
-                }
-            });
-            if (node.hasAttribute && node.hasAttribute('class')) {
-                var classes = Array.prototype.filter.call(node.classList, function (className) { return !isFunctionalPresentationClass(className); });
-                if (classes.length) node.setAttribute('class', classes.join(' '));
-                else node.removeAttribute('class');
-            }
-        });
-        clone.setAttribute('aria-hidden', 'true');
-        return clone;
-    }
-
-    function syncDetailActionPresentation(action, nativeDownload) {
-        var content = action.querySelector('.detailButton-content');
-        var label = content && content.querySelector('.zipper-detail-label');
-        var nativeContent = nativeDownload && nativeDownload.querySelector('.detailButton-content');
-        var sourceContent = nativeContent || nativeDownload;
-        var nativeIcon = findNativeDetailIcon(sourceContent);
-        var nativeLabel = findNativeDetailLabel(sourceContent, nativeIcon);
-        syncPresentationClasses(action, nativeDownload);
-        syncPresentationClasses(content, nativeContent);
-        syncPresentationClasses(label, nativeLabel);
-
-        var signature = nativeIcon ? nativeIcon.outerHTML : '';
-        var previousIcon = action._zipperIconNode;
-        if (signature === action._zipperNativeIconSignature && previousIcon && previousIcon.parentNode === content) return;
-        var icon = nativeIcon ? cloneNativeDetailIcon(nativeIcon) : makeElement('span', 'material-icons detailButton-icon file_download', '');
-        icon.setAttribute('aria-hidden', 'true');
-        if (previousIcon && previousIcon.parentNode === content) previousIcon.replaceWith(icon);
-        else content.insertBefore(icon, label);
-        action._zipperIconNode = icon;
-        action._zipperNativeIconSignature = signature;
-    }
-
     function removeOwnedActions() {
         document.querySelectorAll('[data-zipper-owned="action"], [data-zipper-owned="menu"], [data-zipper-owned="launcher"]').forEach(function (node) {
             node.remove();
         });
-    }
-
-    function buildDetailAction(page, context) {
-        var container = page.querySelector('.mainDetailButtons');
-        if (!container) return;
-        var action = container.querySelector('[data-zipper-owned="action"]');
-        var nativeDownload = container.querySelector('.btnDownload');
-        if (!action) {
-            action = makeButton('', 'button-flat detailButton zipper-detail-action', null, localized('action.downloadZip', 'Download ZIP'));
-            action.setAttribute('is', 'emby-button');
-            action.setAttribute('data-zipper-owned', 'action');
-            applyLocalizedAttribute(action, 'title', localized('action.downloadZip', 'Download ZIP'));
-            var content = makeElement('div', 'detailButton-content');
-            var icon = makeElement('span', 'material-icons detailButton-icon file_download', '');
-            icon.setAttribute('aria-hidden', 'true');
-            content.appendChild(icon);
-            content.appendChild(makeElement('span', 'zipper-detail-label', localized('action.downloadZip', 'Download ZIP')));
-            action.appendChild(content);
-            action._zipperIconNode = icon;
-            action._zipperNativeIconSignature = '';
-            action.addEventListener('click', function (event) {
-                event.preventDefault();
-                event.stopPropagation();
-                var livePage = action.closest('.page.itemDetailPage');
-                var liveItem = livePage && visible(livePage) ? detailItem(livePage) : null;
-                if (!liveItem || !sameGuid(liveItem.id, action.getAttribute('data-item-id'))
-                    || liveItem.type !== action.getAttribute('data-item-type')
-                    || !sameGuid(liveItem.serverId, action.getAttribute('data-server-id'))) return;
-                var fresh = contextFor(liveItem);
-                if (fresh && scopeEnabled(fresh.itemType)) openChooser(fresh);
-            });
-            var nativePlay = container.querySelector('.btnPlay, .btnReplay');
-            var before = nativeDownload || nativePlay;
-            if (before && before.parentNode === container) container.insertBefore(action, before.nextSibling);
-            else container.appendChild(action);
-        }
-        action.setAttribute('data-item-id', context.itemId);
-        action.setAttribute('data-item-type', context.itemType);
-        action.setAttribute('data-server-id', context.serverId);
-        action.setAttribute('data-item-title', context.title || '');
-        applyLocalizedAttribute(action, 'aria-label', localized('action.downloadZipFor', 'Download ZIP for {title}', { title: context.title || typeName(context.itemType) }));
-        applyLocalizedAttribute(action, 'title', localized('action.downloadZip', 'Download ZIP'));
-        syncDetailActionPresentation(action, nativeDownload);
     }
 
     function buildHeaderLauncher(toolbar) {
@@ -646,10 +516,28 @@
             || scroller.querySelector('.actionSheetMenuItem[data-id="download"]'));
         if (!scroller || !nativeDownload || scroller.querySelector('[data-zipper-owned="menu"]')) return;
 
-        var button = makeButton(localized('action.downloadZip', 'Download ZIP'), 'listItem listItem-button actionSheetMenuItem zipper-menu-action', 'archive', localized('action.downloadZipFor', 'Download ZIP for {title}', { title: pending.context.title || typeName(pending.context.itemType) }));
+        var buttonClasses = ['listItem', 'listItem-button', 'actionSheetMenuItem', 'zipper-menu-action'];
+        if (nativeDownload.classList.contains('listItem-border')) buttonClasses.push('listItem-border');
+        if (nativeDownload.classList.contains('listItem-focusscale')) buttonClasses.push('listItem-focusscale');
+        if (nativeDownload.classList.contains('actionsheet-xlargeFont')) buttonClasses.push('actionsheet-xlargeFont');
+
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.className = buttonClasses.join(' ');
         button.setAttribute('is', 'emby-button');
         button.setAttribute('data-id', 'zipper-download');
         button.setAttribute('data-zipper-owned', 'menu');
+        applyLocalizedAttribute(button, 'aria-label', localized('action.downloadZipFor', 'Download ZIP for {title}', { title: pending.context.title || typeName(pending.context.itemType) }));
+
+        var icon = makeElement('span', 'actionsheetMenuItemIcon listItemIcon listItemIcon-transparent material-icons file_download', '');
+        icon.setAttribute('aria-hidden', 'true');
+        button.appendChild(icon);
+
+        var body = makeElement('div', 'listItemBody actionsheetListItemBody');
+        var textNode = makeElement('div', 'listItemBodyText actionSheetItemText', localized('action.downloadZip', 'Download ZIP'));
+        body.appendChild(textNode);
+        button.appendChild(body);
+
         sheet.setAttribute('data-zipper-context-bound', 'true');
         state.pendingContext = null;
         button.addEventListener('click', function () {
@@ -673,17 +561,7 @@
         var details = document.querySelectorAll('.page.itemDetailPage');
         Array.prototype.forEach.call(details, function (page) {
             var previous = page.querySelector('[data-zipper-owned="action"]');
-            if (!visible(page)) {
-                if (previous) previous.remove();
-                return;
-            }
-            var item = detailItem(page);
-            var context = item && contextFor(item);
-            if (!context || !scopeEnabled(context.itemType)) {
-                if (previous) previous.remove();
-                return;
-            }
-            buildDetailAction(page, context);
+            if (previous) previous.remove();
         });
 
         var headers = document.querySelectorAll('header .MuiToolbar-root');
@@ -1028,11 +906,8 @@
                 || !sameGuid(item.serverId, context.serverId)) continue;
             var current = contextFor(item);
             if (!current || !isContextCurrent(current) || !scopeEnabled(current.itemType)) continue;
-            var action = page.querySelector('.mainDetailButtons [data-zipper-owned="action"]');
-            if (action && visible(action)
-                && sameGuid(action.getAttribute('data-item-id'), current.itemId)
-                && action.getAttribute('data-item-type') === current.itemType
-                && sameGuid(action.getAttribute('data-server-id'), current.serverId)) return action;
+            var more = page.querySelector('.mainDetailButtons .btnMoreCommands, .mainDetailButtons [data-action="menu"]');
+            if (more && visible(more)) return more;
         }
         return null;
     }

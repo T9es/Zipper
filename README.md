@@ -2,7 +2,7 @@
 
 Download movies, episodes, seasons, and series from Jellyfin as a ZIP, with their external subtitles included.
 
-Zipper adds **Download ZIP** to Jellyfin Web's media menus and detail pages. Choose what to include, check the files, and download.
+Zipper adds **Download ZIP** to Jellyfin Web's media menus. Choose what to include, check the files, and download.
 
 ## Features
 

@@ -467,16 +467,6 @@
     width: 44px;
 }
 
-.itemDetailPage .mainDetailButtons > [data-zipper-owned="action"].zipper-detail-action {
-    display: inline-flex !important;
-    order: 4;
-}
-
-.zipper-menu-action {
-    border-top: 1px solid var(--zipper-divider, var(--jf-palette-divider, var(--divider, rgba(255, 255, 255, 0.16))));
-    min-height: 48px;
-}
-
 .zipper-download-frame {
     border: 0;
     height: 1px;

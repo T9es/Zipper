@@ -1,6 +1,6 @@
 # Styling Zipper
 
-Zipper adds its own actions and dialogs to Jellyfin Web. Its detail action inherits the native download button's presentation classes and icon. Its menu action follows the native menu entry. Neither takes over Jellyfin's download handlers.
+Zipper adds its own actions and dialogs to Jellyfin Web. Its menu action follows the native menu entry. Neither takes over Jellyfin's download handlers.
 
 Dialog styles are scoped to `.zipper-overlay` and `.zipper-dialog`; administrator-page styles are scoped to `#zipperConfigurationPage`. Jellyfin's `--jf-palette-*` variables provide colors, with older Jellyfin variable names and built-in fallbacks where needed. Zipper does not depend on a specific theme plugin.
 
