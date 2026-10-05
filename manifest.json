@@ -1,0 +1,12 @@
+[
+  {
+    "guid": "78e5c3be-072f-4ea5-8c49-01d6f61a50ad",
+    "name": "Zipper",
+    "overview": "Download original media and its Jellyfin-associated external subtitles together in a ZIP package.",
+    "description": "Zipper adds a Jellyfin Web action for packaging movies, episodes, seasons, or series. By default it includes the original media and all external subtitle tracks associated with the selected Jellyfin media source; recognized tracks or languages can be selected when desired. It preserves source bytes and does not transcode media or generate subtitles. Tested with Jellyfin Server/Web 12.0.0 and File Transformation 3.0.1.0.",
+    "owner": "T9es",
+    "category": "General",
+    "imageUrl": "https://raw.githubusercontent.com/T9es/Zipper/main/assets/icon.svg",
+    "versions": []
+  }
+]

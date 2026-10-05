@@ -1,0 +1,65 @@
+name: Build and validate
+
+on:
+  push:
+    branches: [dev, main]
+  pull_request:
+    branches: [dev, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-validate:
+    name: Build and validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Build plugin
+        run: dotnet build src/Jellyfin.Plugin.Zipper/Jellyfin.Plugin.Zipper.csproj --configuration Release
+
+      - name: Check formatting
+        run: dotnet format Zipper.sln --verify-no-changes
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+
+      - name: Check JavaScript
+        run: |
+          node --check scripts/package.mjs
+          node --check src/Jellyfin.Plugin.Zipper/Web/zipper.js
+          node --check src/Jellyfin.Plugin.Zipper/Web/zipper.i18n.js
+          node -e "const html = require('node:fs').readFileSync('src/Jellyfin.Plugin.Zipper/Configuration/config.html', 'utf8'); new (require('node:vm').Script)(html.match(/<script>([\\s\\S]*?)<\\/script>/)[1]);"
+
+      - name: Validate JSON metadata
+        run: node -e "for (const path of ['meta.json', 'manifest.json', 'src/Jellyfin.Plugin.Zipper/Web/locales/en.json', 'src/Jellyfin.Plugin.Zipper/Web/locales/pl.json']) JSON.parse(require('node:fs').readFileSync(path, 'utf8'))"
+
+      - name: Read package version
+        id: version
+        shell: bash
+        run: |
+          version="$(node -p "JSON.parse(require('node:fs').readFileSync('meta.json', 'utf8')).version")"
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "meta.json version must have four numeric components." >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Create local package
+        env:
+          ZIPPER_VERSION: ${{ steps.version.outputs.version }}
+        run: node scripts/package.mjs --version "$ZIPPER_VERSION" --output-dir artifacts

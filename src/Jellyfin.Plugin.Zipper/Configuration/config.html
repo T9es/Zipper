@@ -1,0 +1,499 @@
+<div id="zipperConfigurationPage" data-role="page" class="page type-interior pluginConfigurationPage fullWidthContent">
+    <style>
+        #zipperConfigurationPage {
+            box-sizing: border-box;
+            margin: 0 auto;
+            max-width: 1040px;
+            padding: 1.5rem 1rem 3rem;
+        }
+
+        #zipperConfigurationPage .zipper-config-intro {
+            color: var(--zipper-text-secondary, var(--jf-palette-text-secondary, var(--secondaryTextColor, rgba(255, 255, 255, 0.72))));
+            line-height: 1.55;
+            margin: 0 0 1.5rem;
+            max-width: 72ch;
+        }
+
+        #zipperConfigurationPage .zipper-config-section {
+            border: 1px solid var(--zipper-divider, var(--jf-palette-divider, var(--divider, rgba(255, 255, 255, 0.18))));
+            margin: 0 0 1.25rem;
+            padding: 1rem;
+        }
+
+        #zipperConfigurationPage .zipper-config-section legend {
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 0 0.35rem;
+        }
+
+        #zipperConfigurationPage .zipper-config-copy,
+        #zipperConfigurationPage .zipper-config-help {
+            color: var(--zipper-text-secondary, var(--jf-palette-text-secondary, var(--secondaryTextColor, rgba(255, 255, 255, 0.68))));
+            line-height: 1.5;
+            margin: 0.35rem 0 0.9rem;
+        }
+
+        #zipperConfigurationPage .zipper-config-grid {
+            display: grid;
+            gap: 1rem 1.25rem;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+        }
+
+        #zipperConfigurationPage .zipper-config-field {
+            min-width: 0;
+        }
+
+        #zipperConfigurationPage .zipper-config-field label,
+        #zipperConfigurationPage .zipper-config-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.4rem;
+        }
+
+        #zipperConfigurationPage .zipper-config-field input[type="number"] {
+            box-sizing: border-box;
+            max-width: 24rem;
+            width: 100%;
+        }
+
+        #zipperConfigurationPage .zipper-config-toggle-list,
+        #zipperConfigurationPage .zipper-config-format-list {
+            display: grid;
+            gap: 0.65rem 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+        }
+
+        #zipperConfigurationPage .zipper-config-toggle,
+        #zipperConfigurationPage .zipper-config-format {
+            align-items: flex-start;
+            display: flex;
+            gap: 0.65rem;
+            line-height: 1.4;
+            min-height: 2.75rem;
+        }
+
+        #zipperConfigurationPage .zipper-config-toggle input,
+        #zipperConfigurationPage .zipper-config-format input {
+            flex: 0 0 auto;
+            height: 1.15rem;
+            margin: 0.1rem 0 0;
+            width: 1.15rem;
+        }
+
+        #zipperConfigurationPage .zipper-config-format code {
+            font-size: 1em;
+        }
+
+        #zipperConfigurationPage .zipper-config-status {
+            min-height: 1.5em;
+            margin: 0.8rem 0;
+        }
+
+        #zipperConfigurationPage .zipper-config-status[data-error="true"] {
+            color: var(--zipper-error, var(--jf-palette-error-main, var(--errorColor, #ff8a80)));
+        }
+
+        #zipperConfigurationPage .zipper-config-actions {
+            display: flex;
+            justify-content: flex-end;
+            padding-top: 0.5rem;
+        }
+
+        #zipperConfigurationPage .zipper-config-actions button {
+            min-height: 2.75rem;
+            min-width: 9rem;
+        }
+
+        @media (max-width: 520px) {
+            #zipperConfigurationPage {
+                padding: 1rem 0.75rem 2rem;
+            }
+
+            #zipperConfigurationPage .zipper-config-section {
+                padding: 0.85rem;
+            }
+
+            #zipperConfigurationPage .zipper-config-actions button {
+                width: 100%;
+            }
+        }
+    </style>
+
+    <div class="content-primary">
+        <h1 data-i18n="config.title">Zipper</h1>
+        <p class="zipper-config-intro" data-i18n="config.intro">Control who can create original-media ZIP packages and set server-wide resource limits. Subtitle choices come from tracks Jellyfin associates with each selected media source.</p>
+
+        <form id="zipperConfigurationForm">
+            <fieldset id="zipperConfigurationFields" disabled>
+                <fieldset class="zipper-config-section">
+                    <legend data-i18n="config.availability">Availability</legend>
+                    <p class="zipper-config-copy" data-i18n="config.availabilityHelp">These settings affect Zipper for every account. Jellyfin’s own item access and download permissions are still checked for each package.</p>
+                    <div class="zipper-config-toggle-list">
+                        <label class="zipper-config-toggle"><input id="zipperPluginEnabled" type="checkbox"><span><strong data-i18n="config.enabled">Enable Zipper</strong><br><span data-i18n="config.enabledHelp">Allow authenticated users to preview, create, and manage their packages.</span></span></label>
+                        <label class="zipper-config-toggle"><input id="zipperUiEnabled" type="checkbox"><span><strong data-i18n="config.webEnabled">Enable Jellyfin Web actions</strong><br><span data-i18n="config.webEnabledHelp">Show Zipper actions in the Web interface. API clients can still use enabled server features.</span></span></label>
+                    </div>
+                </fieldset>
+
+                <fieldset class="zipper-config-section">
+                    <legend data-i18n="config.itemTypes">Supported item types</legend>
+                    <p class="zipper-config-copy" data-i18n="config.itemTypesHelp">Choose which logical library items can be packaged.</p>
+                    <div class="zipper-config-toggle-list">
+                        <label class="zipper-config-toggle"><input id="zipperEnableMovies" type="checkbox"><span data-i18n="config.movies">Movies</span></label>
+                        <label class="zipper-config-toggle"><input id="zipperEnableEpisodes" type="checkbox"><span data-i18n="config.episodes">Episodes</span></label>
+                        <label class="zipper-config-toggle"><input id="zipperEnableSeasons" type="checkbox"><span data-i18n="config.seasons">Whole seasons</span></label>
+                        <label class="zipper-config-toggle"><input id="zipperEnableSeries" type="checkbox"><span data-i18n="config.series">Selected seasons or a whole series</span></label>
+                    </div>
+                </fieldset>
+
+                <fieldset class="zipper-config-section">
+                    <legend data-i18n="config.limits">Resource limits</legend>
+                    <p class="zipper-config-copy" data-i18n="config.limitsHelp">Limits apply to streaming packages too. Zipper sends original media without transcoding and does not cache packages or support transfer resume.</p>
+                    <div class="zipper-config-grid">
+                        <div class="zipper-config-field">
+                            <label for="zipperMaxConcurrentDownloads" data-i18n="config.serverConcurrency">Concurrent downloads across the server</label>
+                            <input class="emby-input" id="zipperMaxConcurrentDownloads" type="number" min="1" max="8" step="1" required>
+                            <p class="zipper-config-help" data-i18n="config.serverConcurrencyHelp">Range: 1–8 active package streams.</p>
+                        </div>
+                        <div class="zipper-config-field">
+                            <label for="zipperMaxConcurrentDownloadsPerUser" data-i18n="config.userConcurrency">Concurrent downloads per account</label>
+                            <input class="emby-input" id="zipperMaxConcurrentDownloadsPerUser" type="number" min="1" max="8" step="1" required>
+                            <p class="zipper-config-help" data-i18n="config.userConcurrencyHelp">Must be no greater than the server-wide concurrent limit.</p>
+                        </div>
+                        <div class="zipper-config-field">
+                            <label for="zipperMaxItems" data-i18n="config.maxItems">Maximum items in one package</label>
+                            <input class="emby-input" id="zipperMaxItems" type="number" min="1" max="500" step="1" required>
+                            <p class="zipper-config-help" data-i18n="config.maxItemsHelp">Range: 1–500 movies or episodes.</p>
+                        </div>
+                        <div class="zipper-config-field">
+                            <label for="zipperMaxEntries" data-i18n="config.maxEntries">Maximum archive entries</label>
+                            <input class="emby-input" id="zipperMaxEntries" type="number" min="1" max="10000" step="1" required>
+                            <p class="zipper-config-help" data-i18n="config.maxEntriesHelp">Includes media and supported associated subtitle files. Range: 1–10,000.</p>
+                        </div>
+                        <div class="zipper-config-field">
+                            <label for="zipperMaxPackageBytes" data-i18n="config.maxBytes">Maximum source-file bytes</label>
+                            <input class="emby-input" id="zipperMaxPackageBytes" type="number" min="1" max="2199023255552" step="1" required>
+                            <p class="zipper-config-help" data-i18n="config.maxBytesHelp">Range: 1 byte to 2 TiB. This caps summed source files; ZIP headers, names, and footer add bounded overhead. For example, 214748364800 is 200 GiB.</p>
+                        </div>
+                        <div class="zipper-config-field">
+                            <label for="zipperPlanningConcurrency" data-i18n="config.planningConcurrency">Planning concurrency</label>
+                            <input class="emby-input" id="zipperPlanningConcurrency" type="number" min="1" max="16" step="1" required>
+                            <p class="zipper-config-help" data-i18n="config.planningConcurrencyHelp">Maximum parallel package-planning operations. Range: 1–16.</p>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset class="zipper-config-section">
+                    <legend data-i18n="config.subtitleFormats">Supported external subtitle formats</legend>
+                    <p class="zipper-config-copy" data-i18n="config.subtitleFormatsHelp">Zipper includes supported external tracks Jellyfin associates with the selected media source. Embedded subtitles remain inside the original media file.</p>
+                    <div class="zipper-config-format-list">
+                        <label class="zipper-config-format"><input type="checkbox" value=".ass"><span><code>.ass</code> <span data-i18n="config.format.ass">Advanced SubStation Alpha</span></span></label>
+                        <label class="zipper-config-format"><input type="checkbox" value=".mks"><span><code>.mks</code> <span data-i18n="config.format.mks">Matroska subtitle stream</span></span></label>
+                        <label class="zipper-config-format"><input type="checkbox" value=".sami"><span><code>.sami</code> <span data-i18n="config.format.sami">SAMI</span></span></label>
+                        <label class="zipper-config-format"><input type="checkbox" value=".smi"><span><code>.smi</code> <span data-i18n="config.format.smi">SMI subtitle</span></span></label>
+                        <label class="zipper-config-format"><input type="checkbox" value=".srt"><span><code>.srt</code> <span data-i18n="config.format.srt">SubRip</span></span></label>
+                        <label class="zipper-config-format"><input type="checkbox" value=".ssa"><span><code>.ssa</code> <span data-i18n="config.format.ssa">SubStation Alpha</span></span></label>
+                        <label class="zipper-config-format"><input type="checkbox" value=".sub"><span><code>.sub</code> <span data-i18n="config.format.sub">MicroDVD or VobSub companion file</span></span></label>
+                        <label class="zipper-config-format"><input type="checkbox" value=".sup"><span><code>.sup</code> <span data-i18n="config.format.sup">PGS subtitle</span></span></label>
+                        <label class="zipper-config-format"><input type="checkbox" value=".vtt"><span><code>.vtt</code> <span data-i18n="config.format.vtt">WebVTT</span></span></label>
+                        <label class="zipper-config-format"><input type="checkbox" value=".idx"><span><code>.idx</code> <span data-i18n="config.format.idx">VobSub index file</span></span></label>
+                    </div>
+                    <p class="zipper-config-help" data-i18n="config.vobsubHelp">VobSub uses matching .idx and .sub files. Enable both extensions to include the pair.</p>
+                </fieldset>
+
+                <div class="zipper-config-actions">
+                    <button class="emby-button raised" type="submit" data-i18n="config.save">Save</button>
+                </div>
+            </fieldset>
+            <p id="zipperConfigurationStatus" class="zipper-config-status" role="status" aria-live="polite" data-i18n="config.loading">Loading configuration…</p>
+        </form>
+    </div>
+
+    <script>
+        (function () {
+            'use strict';
+            var PLUGIN_ID = '78e5c3be-072f-4ea5-8c49-01d6f61a50ad';
+            var page = document.getElementById('zipperConfigurationPage');
+            if (!page || page.dataset.zipperInitialized === 'true') return;
+            page.dataset.zipperInitialized = 'true';
+
+            var form = page.querySelector('#zipperConfigurationForm');
+            var fields = page.querySelector('#zipperConfigurationFields');
+            var status = page.querySelector('#zipperConfigurationStatus');
+            var globalLimit = page.querySelector('#zipperMaxConcurrentDownloads');
+            var perUserLimit = page.querySelector('#zipperMaxConcurrentDownloadsPerUser');
+            var formatInputs = Array.prototype.slice.call(page.querySelectorAll('.zipper-config-format input'));
+            var requestSerial = 0;
+            var pageActive = true;
+            var loadingRequests = 0;
+            var translations = null;
+            var localeObserver = null;
+            var localeLoad = null;
+            var statusMessage = { key: 'config.loading', fallback: 'Loading configuration…', isError: false };
+
+            function text(key, fallback, values) {
+                var message = translations ? translations.text(key, fallback, values) : fallback;
+                return String(message).replace(/\{([a-zA-Z0-9_]+)\}/g, function (match, name) {
+                    return values && Object.prototype.hasOwnProperty.call(values, name) ? String(values[name]) : match;
+                });
+            }
+
+            function number(value) {
+                return translations ? translations.number(value) : String(value);
+            }
+
+            function setStatus(key, fallback, isError) {
+                statusMessage = { key: key, fallback: fallback, isError: isError };
+                status.textContent = text(key, fallback);
+                status.dataset.error = isError ? 'true' : 'false';
+            }
+
+            function applyTranslations() {
+                if (!pageActive || !page.isConnected) return;
+                Array.prototype.forEach.call(page.querySelectorAll('[data-i18n]'), function (node) {
+                    if (node === status) return;
+                    if (!Object.prototype.hasOwnProperty.call(node.dataset, 'zipperI18nFallback')) {
+                        node.dataset.zipperI18nFallback = node.textContent;
+                    }
+                    node.textContent = text(node.getAttribute('data-i18n'), node.dataset.zipperI18nFallback);
+                });
+                setStatus(statusMessage.key, statusMessage.fallback, statusMessage.isError);
+                Array.prototype.forEach.call(page.querySelectorAll('input[type="number"]'), function (input) {
+                    var validation = input._zipperValidation;
+                    if (validation) input.setCustomValidity(text(validation.key, validation.fallback, validation.values));
+                });
+            }
+
+            function publicUrl(path, expectedSuffix) {
+                try {
+                    if (!window.ApiClient || typeof ApiClient.getUrl !== 'function') return '';
+                    var url = new URL(ApiClient.getUrl(path), window.location.href);
+                    if (url.origin !== window.location.origin || !url.pathname.endsWith(expectedSuffix)) return '';
+                    url.search = '';
+                    url.hash = '';
+                    return url.href;
+                } catch (_) {
+                    return '';
+                }
+            }
+
+            function ensureLocalizationRuntime() {
+                if (window.ZipperI18n && typeof window.ZipperI18n.create === 'function') return Promise.resolve();
+                var scriptUrl = publicUrl('Zipper/zipper.i18n.js', '/Zipper/zipper.i18n.js');
+                if (!scriptUrl) return Promise.resolve();
+                return new Promise(function (resolve) {
+                    var script = document.createElement('script');
+                    script.src = scriptUrl + '?v=' + Date.now();
+                    script.async = true;
+                    function finish() {
+                        if (script.parentNode) script.parentNode.removeChild(script);
+                        resolve();
+                    }
+                    script.onload = finish;
+                    script.onerror = finish;
+                    document.head.appendChild(script);
+                });
+            }
+
+            function initializeLocalization() {
+                if (translations) {
+                    if (pageActive && !localeObserver && typeof translations.observe === 'function') localeObserver = translations.observe(applyTranslations);
+                    return translations.load().then(applyTranslations);
+                }
+                if (localeLoad) return localeLoad;
+                localeLoad = ensureLocalizationRuntime().then(function () {
+                    if (window.ZipperI18n && typeof window.ZipperI18n.create === 'function') {
+                        translations = window.ZipperI18n.create(function (language) {
+                            return publicUrl('Zipper/Locales/' + language, '/Zipper/Locales/' + language);
+                        });
+                        if (pageActive && !localeObserver && typeof translations.observe === 'function') {
+                            localeObserver = translations.observe(applyTranslations);
+                        }
+                        return translations.load().catch(function () { return translations; });
+                    }
+                    return null;
+                }).then(function () {
+                    applyTranslations();
+                }).finally(function () {
+                    localeLoad = null;
+                });
+                return localeLoad;
+            }
+
+            function beginLoading() {
+                loadingRequests += 1;
+                Dashboard.showLoadingMsg();
+            }
+
+            function endLoading() {
+                loadingRequests = Math.max(0, loadingRequests - 1);
+                if (loadingRequests === 0) Dashboard.hideLoadingMsg();
+            }
+
+            function currentRequest(request) {
+                return pageActive && page.isConnected && request === requestSerial;
+            }
+
+            function numericInput(id, config, name, fallback) {
+                var value = Number(config[name]);
+                page.querySelector(id).value = Number.isSafeInteger(value) ? String(value) : String(fallback);
+            }
+
+            function populate(configuration) {
+                var config = configuration || {};
+                page.querySelector('#zipperPluginEnabled').checked = config.PluginEnabled !== false;
+                page.querySelector('#zipperUiEnabled').checked = config.UiEnabled !== false;
+                page.querySelector('#zipperEnableMovies').checked = config.EnableMovies !== false;
+                page.querySelector('#zipperEnableEpisodes').checked = config.EnableEpisodes !== false;
+                page.querySelector('#zipperEnableSeasons').checked = config.EnableSeasons !== false;
+                page.querySelector('#zipperEnableSeries').checked = config.EnableSeries !== false;
+                numericInput('#zipperMaxConcurrentDownloads', config, 'MaxConcurrentDownloads', 2);
+                numericInput('#zipperMaxConcurrentDownloadsPerUser', config, 'MaxConcurrentDownloadsPerUser', 1);
+                numericInput('#zipperMaxItems', config, 'MaxItems', 250);
+                numericInput('#zipperMaxEntries', config, 'MaxEntries', 3000);
+                numericInput('#zipperMaxPackageBytes', config, 'MaxPackageBytes', 214748364800);
+                numericInput('#zipperPlanningConcurrency', config, 'PlanningConcurrency', 4);
+                var extensions = Array.isArray(config.AllowedSubtitleExtensions) ? config.AllowedSubtitleExtensions : formatInputs.map(function (input) { return input.value; });
+                var selected = new Set(extensions.map(function (extension) { return String(extension).trim().toLowerCase(); }));
+                formatInputs.forEach(function (input) { input.checked = selected.has(input.value); });
+                perUserLimit.max = globalLimit.value || '8';
+                clearValidation(globalLimit);
+                clearValidation(perUserLimit);
+                fields.disabled = false;
+            }
+
+            function loadConfiguration() {
+                var request = ++requestSerial;
+                fields.disabled = true;
+                setStatus('config.loading', 'Loading configuration…', false);
+                beginLoading();
+                return ApiClient.getPluginConfiguration(PLUGIN_ID).then(function (configuration) {
+                    if (!currentRequest(request)) return;
+                    populate(configuration);
+                    setStatus('config.loaded', 'Configuration loaded.', false);
+                }).catch(function () {
+                    if (!currentRequest(request)) return;
+                    setStatus('config.loadError', 'Zipper configuration could not be loaded. Reopen this page and try again.', true);
+                    Dashboard.alert(text('config.loadAlert', 'Zipper could not load its configuration.'));
+                }).finally(function () {
+                    endLoading();
+                });
+            }
+
+            function setValidation(input, key, fallback, values) {
+                input._zipperValidation = { key: key, fallback: fallback, values: values };
+                input.setCustomValidity(text(key, fallback, values));
+            }
+
+            function clearValidation(input) {
+                delete input._zipperValidation;
+                input.setCustomValidity('');
+            }
+
+            function readInteger(id, labelKey, labelFallback, min, max) {
+                var input = page.querySelector(id);
+                var value = input.valueAsNumber;
+                if (!Number.isSafeInteger(value) || value < min || value > max) {
+                    setValidation(input, 'config.validation.wholeNumber', '{label} must be a whole number from {min} to {max}.', {
+                        label: text(labelKey, labelFallback), min: number(min), max: number(max)
+                    });
+                    return null;
+                }
+                clearValidation(input);
+                return value;
+            }
+
+            function updateConcurrencyValidity() {
+                clearValidation(globalLimit);
+                if (Number.isSafeInteger(globalLimit.valueAsNumber)) perUserLimit.max = String(globalLimit.valueAsNumber);
+                else perUserLimit.max = '8';
+                if (perUserLimit.valueAsNumber > globalLimit.valueAsNumber) {
+                    setValidation(perUserLimit, 'config.validation.userLimit', 'Per-account concurrency cannot exceed the server-wide limit.');
+                } else {
+                    clearValidation(perUserLimit);
+                }
+            }
+
+            [globalLimit, perUserLimit].forEach(function (input) {
+                input.addEventListener('input', function () {
+                    clearValidation(input);
+                    updateConcurrencyValidity();
+                });
+                input.addEventListener('change', updateConcurrencyValidity);
+            });
+
+            Array.prototype.forEach.call(page.querySelectorAll('input[type="number"]'), function (input) {
+                if (input !== globalLimit && input !== perUserLimit) {
+                    input.addEventListener('input', function () { clearValidation(input); });
+                }
+            });
+
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+                Array.prototype.forEach.call(form.querySelectorAll('input'), clearValidation);
+                updateConcurrencyValidity();
+                if (fields.disabled || !form.reportValidity()) return;
+                var values = {
+                    MaxConcurrentDownloads: readInteger('#zipperMaxConcurrentDownloads', 'config.validation.serverConcurrency', 'Server-wide concurrent downloads', 1, 8),
+                    MaxConcurrentDownloadsPerUser: readInteger('#zipperMaxConcurrentDownloadsPerUser', 'config.validation.userConcurrency', 'Per-account concurrent downloads', 1, 8),
+                    MaxItems: readInteger('#zipperMaxItems', 'config.validation.items', 'Maximum items', 1, 500),
+                    MaxEntries: readInteger('#zipperMaxEntries', 'config.validation.entries', 'Maximum archive entries', 1, 10000),
+                    MaxPackageBytes: readInteger('#zipperMaxPackageBytes', 'config.validation.packageSize', 'Maximum package size', 1, 2199023255552),
+                    PlanningConcurrency: readInteger('#zipperPlanningConcurrency', 'config.validation.planning', 'Planning concurrency', 1, 16)
+                };
+                if (Object.keys(values).some(function (key) { return values[key] === null; })) {
+                    form.reportValidity();
+                    return;
+                }
+                if (values.MaxConcurrentDownloadsPerUser > values.MaxConcurrentDownloads) {
+                    setValidation(perUserLimit, 'config.validation.userLimit', 'Per-account concurrency cannot exceed the server-wide limit.');
+                    perUserLimit.reportValidity();
+                    return;
+                }
+                var request = ++requestSerial;
+                fields.disabled = true;
+                setStatus('config.saving', 'Saving configuration…', false);
+                beginLoading();
+                ApiClient.getPluginConfiguration(PLUGIN_ID).then(function (freshConfiguration) {
+                    if (!currentRequest(request)) return null;
+                    var configuration = Object.assign({}, freshConfiguration || {});
+                    configuration.PluginEnabled = page.querySelector('#zipperPluginEnabled').checked;
+                    configuration.UiEnabled = page.querySelector('#zipperUiEnabled').checked;
+                    configuration.EnableMovies = page.querySelector('#zipperEnableMovies').checked;
+                    configuration.EnableEpisodes = page.querySelector('#zipperEnableEpisodes').checked;
+                    configuration.EnableSeasons = page.querySelector('#zipperEnableSeasons').checked;
+                    configuration.EnableSeries = page.querySelector('#zipperEnableSeries').checked;
+                    Object.keys(values).forEach(function (key) { configuration[key] = values[key]; });
+                    configuration.AllowedSubtitleExtensions = formatInputs.filter(function (input) { return input.checked; }).map(function (input) { return input.value; });
+                    return ApiClient.updatePluginConfiguration(PLUGIN_ID, configuration);
+                }).then(function (result) {
+                    if (!currentRequest(request) || result === null) return;
+                    Dashboard.processPluginConfigurationUpdateResult(result);
+                    setStatus('config.saved', 'Saved. Reload Jellyfin Web to apply Web action changes. File Transformation 3.0.1 is required for those changes.', false);
+                }).catch(function () {
+                    if (!currentRequest(request)) return;
+                    setStatus('config.saveError', 'Zipper could not confirm that these settings were saved. Reload this page to check the current configuration.', true);
+                    Dashboard.alert(text('config.saveAlert', 'Zipper could not save its configuration.'));
+                }).finally(function () {
+                    endLoading();
+                    if (currentRequest(request)) {
+                        fields.disabled = false;
+                    }
+                });
+            });
+
+            page.addEventListener('viewshow', function () {
+                pageActive = true;
+                initializeLocalization().then(function () { if (pageActive) loadConfiguration(); });
+            });
+            page.addEventListener('viewhide', function () {
+                pageActive = false;
+                requestSerial += 1;
+                if (localeObserver) {
+                    localeObserver();
+                    localeObserver = null;
+                }
+            });
+            if (page.offsetParent !== null) initializeLocalization().then(function () { if (pageActive) loadConfiguration(); });
+        }());
+    </script>
+</div>

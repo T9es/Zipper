@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <AssemblyName>Jellyfin.Plugin.Zipper</AssemblyName>
+    <RootNamespace>Jellyfin.Plugin.Zipper</RootNamespace>
+    <Version>1.0.0.0</Version>
+    <JellyfinVersion>12.0.0</JellyfinVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Jellyfin.Common" Version="$(JellyfinVersion)">
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
+    <PackageReference Include="Jellyfin.Model" Version="$(JellyfinVersion)">
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
+    <PackageReference Include="Jellyfin.Controller" Version="$(JellyfinVersion)">
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4">
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Configuration\config.html" />
+    <EmbeddedResource Include="Web\zipper.js" />
+    <EmbeddedResource Include="Web\zipper.i18n.js" />
+    <EmbeddedResource Include="Web\zipper.css" />
+    <EmbeddedResource Include="Web\locales\*.json" />
+    <None Include="..\..\meta.json" Link="meta.json" CopyToOutputDirectory="Always" />
+    <None Include="..\..\assets\icon.svg" Link="icon.svg" CopyToOutputDirectory="Always" />
+  </ItemGroup>
+</Project>

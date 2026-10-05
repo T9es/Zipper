@@ -1,0 +1,527 @@
+.zipper-overlay {
+    align-items: center;
+    background: rgba(0, 0, 0, 0.62);
+    box-sizing: border-box;
+    display: flex;
+    inset: 0;
+    justify-content: center;
+    padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+    position: fixed;
+    z-index: 10000;
+}
+
+.zipper-dialog {
+    background: var(--zipper-surface, var(--jf-palette-background-paper, var(--background, #17191c)));
+    border: 1px solid var(--zipper-divider, var(--jf-palette-divider, var(--divider, rgba(255, 255, 255, 0.18))));
+    border-radius: 8px;
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.42);
+    box-sizing: border-box;
+    color: var(--zipper-text-primary, var(--jf-palette-text-primary, var(--primaryTextColor, #f3f4f4)));
+    display: flex;
+    flex-direction: column;
+    max-height: min(90dvh, 980px);
+    max-width: 720px;
+    outline: none;
+    overflow: hidden;
+    width: 100%;
+}
+
+.zipper-dialog-header {
+    align-items: center;
+    border-bottom: 1px solid var(--zipper-divider, var(--jf-palette-divider, var(--divider, rgba(255, 255, 255, 0.15))));
+    display: flex;
+    flex: 0 0 auto;
+    gap: 0.5rem;
+    min-height: 3.5rem;
+    padding: 0.35rem 0.75rem;
+}
+
+.zipper-dialog-title {
+    flex: 1 1 auto;
+    font-size: 1.12rem;
+    font-weight: 600;
+    line-height: 1.3;
+    margin: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.zipper-dialog-back,
+.zipper-dialog-close {
+    align-items: center;
+    display: inline-flex;
+    flex: 0 0 44px;
+    height: 44px;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0;
+    width: 44px;
+}
+
+.zipper-overlay [hidden] {
+    display: none !important;
+}
+
+.zipper-dialog-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 1rem;
+    scrollbar-gutter: stable;
+}
+
+.zipper-dialog :focus-visible {
+    outline: 2px solid var(--zipper-accent, var(--jf-palette-primary-main, var(--accent, #00a4dc)));
+    outline-offset: 2px;
+}
+
+.zipper-summary {
+    margin: 0 0 1rem;
+    padding: 0.1rem 0;
+}
+
+.zipper-summary-title {
+    font-size: 1.15rem;
+    line-height: 1.35;
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.zipper-summary-copy,
+.zipper-center-intro {
+    color: var(--zipper-text-secondary, var(--jf-palette-text-secondary, var(--secondaryTextColor, rgba(255, 255, 255, 0.7))));
+    font-size: 0.92rem;
+    line-height: 1.5;
+    margin: 0.4rem 0 0;
+}
+
+.zipper-fieldset {
+    border: 1px solid var(--zipper-divider, var(--jf-palette-divider, var(--divider, rgba(255, 255, 255, 0.16))));
+    border-radius: 3px;
+    margin: 0 0 0.9rem;
+    min-width: 0;
+    padding: 0.75rem;
+}
+
+.zipper-fieldset[hidden] {
+    display: none;
+}
+
+.zipper-fieldset legend {
+    font-size: 0.96rem;
+    font-weight: 600;
+    padding: 0 0.3rem;
+}
+
+.zipper-option {
+    align-items: flex-start;
+    border-radius: 3px;
+    cursor: pointer;
+    display: flex;
+    gap: 0.65rem;
+    line-height: 1.4;
+    min-height: 44px;
+    padding: 0.55rem 0.4rem;
+    position: relative;
+}
+
+.zipper-option input {
+    accent-color: var(--zipper-accent, var(--jf-palette-primary-main, var(--accent, #00a4dc)));
+    flex: 0 0 auto;
+    height: 1.1rem;
+    margin: 0.08rem 0 0;
+    width: 1.1rem;
+}
+
+.zipper-field-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.zipper-radio-option {
+    align-items: center;
+    border: 0;
+    background: transparent;
+    flex: 1 1 10rem;
+    padding: 0.6rem 0.7rem;
+}
+
+.zipper-radio-option:has(input:checked),
+.zipper-option:has(input:checked) {
+    background: var(--zipper-action-hover, var(--jf-palette-action-hover, transparent));
+}
+
+.zipper-mode-field {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.zipper-mode-field legend {
+    flex-basis: 100%;
+}
+
+.zipper-source-select {
+    box-sizing: border-box;
+    max-width: 100%;
+    min-height: 44px;
+    width: 100%;
+}
+
+.zipper-field-help,
+.zipper-track-meta {
+    color: var(--zipper-text-secondary, var(--jf-palette-text-secondary, var(--secondaryTextColor, rgba(255, 255, 255, 0.65))));
+    font-size: 0.86rem;
+    line-height: 1.45;
+    margin: 0.35rem 0 0.65rem;
+}
+
+.zipper-season-list,
+.zipper-track-list,
+.zipper-language-list {
+    display: grid;
+    gap: 0.2rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+}
+
+.zipper-season-option,
+.zipper-track-option,
+.zipper-language-option,
+.zipper-all-languages,
+.zipper-all-seasons {
+    background: transparent;
+    border-bottom: 1px solid var(--zipper-divider, var(--jf-palette-divider, var(--divider, rgba(255, 255, 255, 0.12))));
+    margin: 0.1rem 0;
+}
+
+.zipper-track-meta {
+    display: block;
+    flex-basis: 100%;
+    margin: 0.15rem 0 0;
+}
+
+.zipper-language-slot {
+    margin-bottom: 0.5rem;
+}
+
+.zipper-disabled-section {
+    opacity: 0.56;
+}
+
+.zipper-inline-status,
+.zipper-inline-error,
+.zipper-success-message,
+.zipper-empty-note,
+.zipper-loading,
+.zipper-error-message {
+    line-height: 1.5;
+    margin: 0.55rem 0;
+    overflow-wrap: anywhere;
+}
+
+.zipper-inline-status,
+.zipper-empty-note {
+    color: var(--zipper-text-secondary, var(--jf-palette-text-secondary, var(--secondaryTextColor, rgba(255, 255, 255, 0.7))));
+}
+
+.zipper-inline-error,
+.zipper-warning {
+    color: var(--zipper-error, var(--jf-palette-error-main, var(--errorColor, #ff8a80)));
+}
+
+.zipper-success-message {
+    color: var(--zipper-text-secondary, var(--jf-palette-text-secondary, var(--secondaryTextColor, rgba(255, 255, 255, 0.78))));
+}
+
+.zipper-warning-list,
+.zipper-preview-warnings {
+    margin: 0.5rem 0;
+}
+
+.zipper-warning {
+    font-size: 0.9rem;
+    line-height: 1.45;
+    margin: 0.4rem 0;
+    padding: 0.2rem 0;
+    overflow-wrap: anywhere;
+}
+
+.zipper-preview-section {
+    border-top: 1px solid var(--zipper-divider, var(--jf-palette-divider, var(--divider, rgba(255, 255, 255, 0.16))));
+    margin-top: 1rem;
+    padding-top: 0.8rem;
+}
+
+.zipper-preview-heading {
+    align-items: baseline;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.75rem;
+    justify-content: space-between;
+}
+
+.zipper-preview-heading h4 {
+    font-size: 1rem;
+    margin: 0;
+}
+
+.zipper-preview-summary {
+    color: var(--zipper-text-secondary, var(--jf-palette-text-secondary, var(--secondaryTextColor, rgba(255, 255, 255, 0.74))));
+    font-size: 0.88rem;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
+.zipper-file-list {
+    border-block: 1px solid var(--zipper-divider, var(--jf-palette-divider, var(--divider, rgba(255, 255, 255, 0.12))));
+    list-style: none;
+    margin: 0.65rem 0 0;
+    max-height: 11rem;
+    overflow: auto;
+    padding: 0.25rem 0.65rem;
+}
+
+.zipper-file-list li {
+    border-bottom: 1px solid var(--zipper-divider, var(--jf-palette-divider, var(--divider, rgba(255, 255, 255, 0.1))));
+    font-family: var(--monospaceFontFamily, monospace);
+    font-size: 0.82rem;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+    padding: 0.35rem 0;
+    word-break: break-word;
+}
+
+.zipper-file-list li:last-child {
+    border-bottom: 0;
+}
+
+.zipper-file-list-more {
+    color: var(--zipper-text-secondary, var(--jf-palette-text-secondary, var(--secondaryTextColor, rgba(255, 255, 255, 0.7))));
+    font-family: inherit !important;
+}
+
+.zipper-dialog-actions,
+.zipper-center-tools,
+.zipper-job-actions {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.zipper-dialog-actions {
+    border-top: 1px solid var(--zipper-divider, var(--jf-palette-divider, var(--divider, rgba(255, 255, 255, 0.15))));
+    justify-content: flex-end;
+    margin-top: 1rem;
+    padding-top: 0.8rem;
+}
+
+.zipper-dialog-actions button,
+.zipper-center-tools button,
+.zipper-job-actions button,
+.zipper-error-view button {
+    min-height: 44px;
+}
+
+.zipper-primary-button,
+.zipper-secondary-button {
+    align-items: center;
+    display: inline-flex;
+    gap: 0.45rem;
+    justify-content: center;
+    max-width: 100%;
+    min-height: 44px;
+    overflow-wrap: anywhere;
+    padding: 0.55rem 0.85rem;
+    white-space: normal;
+}
+
+.zipper-primary-button {
+    background: var(--zipper-accent, var(--jf-palette-primary-main, var(--accent, #00a4dc)));
+    color: var(--zipper-accent-contrast, var(--jf-palette-primary-contrastText, #fff));
+}
+
+.zipper-primary-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.zipper-center-intro {
+    margin-bottom: 0.85rem;
+}
+
+.zipper-center-tools {
+    justify-content: flex-end;
+    margin-bottom: 0.8rem;
+}
+
+.zipper-job-list {
+    display: grid;
+    gap: 0.65rem;
+}
+
+.zipper-job {
+    border-bottom: 1px solid var(--zipper-divider, var(--jf-palette-divider, var(--divider, rgba(255, 255, 255, 0.14))));
+    min-width: 0;
+    padding: 0.75rem 0;
+}
+
+.zipper-job-header {
+    align-items: flex-start;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.75rem;
+    justify-content: space-between;
+}
+
+.zipper-job-title {
+    flex: 1 1 14rem;
+    font-size: 0.98rem;
+    line-height: 1.4;
+    margin: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.zipper-job-state {
+    border: 1px solid var(--zipper-divider, var(--jf-palette-divider, var(--divider, rgba(255, 255, 255, 0.2))));
+    border-radius: 999px;
+    color: var(--zipper-text-secondary, var(--jf-palette-text-secondary, var(--secondaryTextColor, rgba(255, 255, 255, 0.82))));
+    flex: 0 0 auto;
+    font-size: 0.76rem;
+    line-height: 1.3;
+    padding: 0.2rem 0.55rem;
+}
+
+.zipper-state-streaming,
+.zipper-state-ready,
+.zipper-state-validating {
+    border-color: var(--zipper-accent, var(--jf-palette-primary-main, var(--accent, #00a4dc)));
+}
+
+.zipper-state-failed,
+.zipper-state-expired {
+    border-color: var(--zipper-error, var(--jf-palette-error-main, var(--errorColor, #ff8a80)));
+    color: var(--zipper-error, var(--jf-palette-error-main, var(--errorColor, #ff8a80)));
+}
+
+.zipper-job-description,
+.zipper-job-bytes,
+.zipper-job-error {
+    color: var(--zipper-text-secondary, var(--jf-palette-text-secondary, var(--secondaryTextColor, rgba(255, 255, 255, 0.7))));
+    font-size: 0.88rem;
+    line-height: 1.45;
+    margin: 0.35rem 0;
+    overflow-wrap: anywhere;
+}
+
+.zipper-job-error {
+    color: var(--zipper-error, var(--jf-palette-error-main, var(--errorColor, #ff8a80)));
+}
+
+.zipper-job-actions {
+    margin-top: 0.5rem;
+}
+
+.zipper-preferences .zipper-fieldset {
+    margin-top: 0.8rem;
+}
+
+.zipper-error-view {
+    padding: 0.5rem 0;
+}
+
+.zipper-error-view h3 {
+    font-size: 1.05rem;
+    margin: 0 0 0.5rem;
+}
+
+.zipper-loading::before {
+    animation: zipper-spin 900ms linear infinite;
+    border: 2px solid var(--zipper-divider, var(--jf-palette-divider, var(--divider, rgba(255, 255, 255, 0.24))));
+    border-bottom-color: var(--zipper-accent, var(--jf-palette-primary-main, var(--accent, #00a4dc)));
+    border-radius: 50%;
+    content: "";
+    display: inline-block;
+    height: 0.85rem;
+    margin-right: 0.55rem;
+    vertical-align: -0.12rem;
+    width: 0.85rem;
+}
+
+@keyframes zipper-spin {
+    to { transform: rotate(360deg); }
+}
+
+.zipper-header-action {
+    align-items: center;
+    display: inline-flex;
+    flex: 0 0 44px;
+    height: 44px;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0;
+    width: 44px;
+}
+
+.itemDetailPage .mainDetailButtons > [data-zipper-owned="action"].zipper-detail-action {
+    display: inline-flex !important;
+    order: 4;
+}
+
+.zipper-menu-action {
+    border-top: 1px solid var(--zipper-divider, var(--jf-palette-divider, var(--divider, rgba(255, 255, 255, 0.16))));
+    min-height: 48px;
+}
+
+.zipper-download-frame {
+    border: 0;
+    height: 1px;
+    left: -2px;
+    opacity: 0;
+    position: fixed;
+    top: 0;
+    width: 1px;
+}
+
+.zipper-download-form {
+    display: none;
+}
+
+@media (max-width: 560px) {
+    .zipper-overlay {
+        align-items: flex-end;
+        padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+    }
+
+    .zipper-dialog {
+        border-radius: 7px 7px 4px 4px;
+        max-height: 94dvh;
+    }
+
+    .zipper-dialog-body {
+        padding: 0.8rem;
+    }
+
+    .zipper-dialog-actions {
+        justify-content: stretch;
+    }
+
+    .zipper-dialog-actions button {
+        flex: 1 1 calc(50% - 0.5rem);
+    }
+
+    .zipper-dialog-actions .zipper-primary-button {
+        flex-basis: 100%;
+        order: -1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .zipper-loading::before {
+        animation-duration: 2400ms;
+    }
+}

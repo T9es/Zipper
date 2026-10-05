@@ -1,0 +1,37 @@
+name: Bug report
+description: Report something that does not work.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "For security issues, use [private vulnerability reporting](https://github.com/T9es/Zipper/security/advisories/new). Remove credentials, server addresses, account details, and private media information from attachments."
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe the problem and what you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Versions and setup
+      value: |
+        Zipper:
+        Jellyfin Server / Web:
+        File Transformation:
+        Browser / operating system:
+        Theme / other relevant plugins:
+    validations:
+      required: true
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Screenshots or logs
+      description: Optional. Use sample titles and filenames where possible.

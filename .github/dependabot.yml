@@ -1,0 +1,20 @@
+version: 2
+updates:
+  - package-ecosystem: nuget
+    directory: /src/Jellyfin.Plugin.Zipper
+    target-branch: dev
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 5
+    groups:
+      jellyfin:
+        patterns: ["Jellyfin.*"]
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: dev
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 5
+    groups:
+      actions:
+        patterns: ["*"]
