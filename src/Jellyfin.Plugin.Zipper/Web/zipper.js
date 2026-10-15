@@ -1904,45 +1904,104 @@
 
     function renderJobList(center, jobs) {
         if (!center || !center.list) return;
+        var focused = center.list.contains(document.activeElement) ? document.activeElement : null;
+        var focusedCard = focused && focused.closest('[data-zipper-job-id]');
+        var focusedId = focusedCard && focusedCard.getAttribute('data-zipper-job-id');
         center.jobs = jobs;
-        center.list.replaceChildren();
-        if (!jobs.length) {
-            center.list.appendChild(makeElement('p', 'zipper-empty-note', localized('center.empty', 'No recent Zipper packages are available for this Jellyfin account.')));
-            return;
+        // Keep controls mounted while polling updates job status and byte counts.
+        if (!center.jobRows) {
+            center.jobRows = new Map();
+            center.emptyNote = makeElement('p', 'zipper-empty-note', localized('center.empty', 'No recent Zipper packages are available for this Jellyfin account.'));
+            center.list.replaceChildren(center.emptyNote);
         }
+        var retained = new Set();
+        var next = center.list.firstElementChild;
         jobs.forEach(function (job) {
-            if (!job || !normalizeGuid(job.id)) return;
-            var card = makeElement('article', 'zipper-job');
-            var header = makeElement('div', 'zipper-job-header');
-            header.appendChild(makeElement('h3', 'zipper-job-title', job.title || localized('center.package', 'Package')));
-            header.appendChild(makeElement('span', 'zipper-job-state zipper-state-' + String(job.state || '').toLowerCase(), stateLabel(job.state)));
-            card.appendChild(header);
-            card.appendChild(makeElement('p', 'zipper-job-description', stateDescription(job)));
-            card.appendChild(makeElement('p', 'zipper-job-bytes', Number(job.bytesSentByServer) > 0
-                ? localized('center.serverBytesSent', '{size} sent by the server', { size: formatBytes(job.bytesSentByServer) })
-                : localized('center.noResponseBytes', 'No response bytes sent by the server yet')));
-            if (job.error) card.appendChild(makeElement('p', 'zipper-job-error', Object.prototype.hasOwnProperty.call(JOB_ERROR_TEXT, job.error) ? JOB_ERROR_TEXT[job.error] : localized('center.jobError.unknown', 'Try creating a new package.')));
-            var actions = makeElement('div', 'zipper-job-actions');
-            if (ACTIVE_STATES[String(job.state || '').toLowerCase()]) {
-                var cancel = makeButton(localized('center.cancel', 'Cancel'), 'emby-button button-flat zipper-secondary-button', 'cancel', localized('center.cancelFor', 'Cancel package {title}', { title: job.title || 'download' }));
-                cancel.disabled = center.pendingActions && center.pendingActions.has(normalizeGuid(job.id));
-                cancel.addEventListener('click', function () { cancelJob(job.id, center); });
-                actions.appendChild(cancel);
-            }
-            if (job.canRetry === true) {
-                var retryLabel = String(job.state).toLowerCase() === 'completed'
-                    ? localized('center.downloadAgain', 'Download again') : localized('center.retry', 'Retry package');
-                var retry = makeButton(retryLabel, 'emby-button button-flat zipper-secondary-button', 'refresh', localized('center.retryFor', '{action} for {title}', { action: translate(retryLabel.key, retryLabel.fallback), title: job.title || 'package' }));
-                setLocalizedRenderer(retry, function () {
-                    retry.setAttribute('aria-label', translate('center.retryFor', '{action} for {title}', { action: translate(retryLabel.key, retryLabel.fallback), title: job.title || 'package' }));
-                });
-                retry.disabled = center.pendingActions && center.pendingActions.has(normalizeGuid(job.id));
-                retry.addEventListener('click', function () { retryJob(job.id, center); });
-                actions.appendChild(retry);
-            }
-            if (actions.childNodes.length) card.appendChild(actions);
-            center.list.appendChild(card);
+            var id = job && normalizeGuid(job.id);
+            if (!id || retained.has(id)) return;
+            retained.add(id);
+            var row = center.jobRows.get(id);
+            if (!row) {
+                row = createJobRow(center, id, job);
+                center.jobRows.set(id, row);
+            } else row.update(job);
+            if (row.card !== next) center.list.insertBefore(row.card, next);
+            next = row.card.nextElementSibling;
         });
+        center.jobRows.forEach(function (row, id) {
+            if (retained.has(id)) return;
+            row.card.remove();
+            center.jobRows.delete(id);
+        });
+        center.emptyNote.hidden = retained.size > 0;
+
+        if (!focused) return;
+        var restore = focused;
+        if (!focused.isConnected || focused.hidden || focused.disabled) {
+            var focusedRow = center.jobRows.get(focusedId);
+            restore = focusedRow && [focusedRow.cancel, focusedRow.retry].find(function (button) { return !button.hidden && !button.disabled; }) || center.refresh;
+        }
+        if (restore && restore.isConnected && document.activeElement !== restore && visible(center.root)) {
+            try { restore.focus({ preventScroll: true }); } catch (_) { restore.focus(); }
+        }
+    }
+
+    function createJobRow(center, id, job) {
+        var card = makeElement('article', 'zipper-job');
+        card.setAttribute('data-zipper-job-id', id);
+        var header = makeElement('div', 'zipper-job-header');
+        var title = makeElement('h3', 'zipper-job-title');
+        var status = makeElement('span', 'zipper-job-state');
+        header.appendChild(title);
+        header.appendChild(status);
+        var description = makeElement('p', 'zipper-job-description');
+        var bytes = makeElement('p', 'zipper-job-bytes');
+        var error = makeElement('p', 'zipper-job-error');
+        var actions = makeElement('div', 'zipper-job-actions');
+        var cancel = makeButton('Cancel', 'emby-button button-flat zipper-secondary-button', 'cancel', 'Cancel');
+        var retry = makeButton('Retry package', 'emby-button button-flat zipper-secondary-button', 'refresh', 'Retry package');
+        var cancelLabel = cancel.querySelector('.zipper-button-label');
+        var retryLabel = retry.querySelector('.zipper-button-label');
+        cancel.addEventListener('click', function () { cancelJob(id, center); });
+        retry.addEventListener('click', function () { retryJob(id, center); });
+        actions.appendChild(cancel);
+        actions.appendChild(retry);
+        [header, description, bytes, error, actions].forEach(function (node) { card.appendChild(node); });
+
+        function text(node, value) {
+            var output = value && value.zipperLocalized ? translate(value.key, value.fallback, value.values) : String(value || '');
+            if (node.textContent !== output) node.textContent = output;
+        }
+
+        function update(nextJob) {
+            if (nextJob) job = nextJob;
+            var stateName = String(job.state || '').toLowerCase();
+            var statusClass = 'zipper-job-state zipper-state-' + stateName;
+            if (status.className !== statusClass) status.className = statusClass;
+            text(title, job.title || localized('center.package', 'Package'));
+            text(status, stateLabel(job.state));
+            text(description, stateDescription(job));
+            text(bytes, Number(job.bytesSentByServer) > 0
+                ? localized('center.serverBytesSent', '{size} sent by the server', { size: formatBytes(job.bytesSentByServer) })
+                : localized('center.noResponseBytes', 'No response bytes sent by the server yet'));
+            error.hidden = !job.error;
+            if (job.error) text(error, Object.prototype.hasOwnProperty.call(JOB_ERROR_TEXT, job.error) ? JOB_ERROR_TEXT[job.error] : localized('center.jobError.unknown', 'Try creating a new package.'));
+            cancel.hidden = !ACTIVE_STATES[stateName];
+            retry.hidden = job.canRetry !== true;
+            actions.hidden = cancel.hidden && retry.hidden;
+            var pending = !!(center.pendingActions && center.pendingActions.has(id));
+            cancel.disabled = pending;
+            retry.disabled = pending;
+            text(cancelLabel, localized('center.cancel', 'Cancel'));
+            text(retryLabel, stateName === 'completed' ? localized('center.downloadAgain', 'Download again') : localized('center.retry', 'Retry package'));
+            var cancelAria = translate('center.cancelFor', 'Cancel package {title}', { title: job.title || 'download' });
+            var retryAria = translate('center.retryFor', '{action} for {title}', { action: retryLabel.textContent, title: job.title || 'package' });
+            if (cancel.getAttribute('aria-label') !== cancelAria) cancel.setAttribute('aria-label', cancelAria);
+            if (retry.getAttribute('aria-label') !== retryAria) retry.setAttribute('aria-label', retryAria);
+        }
+
+        setLocalizedRenderer(card, function () { update(); });
+        return { card: card, cancel: cancel, retry: retry, update: update };
     }
 
     function stateLabel(status) {
