@@ -327,11 +327,14 @@
         if (!force && state.capIdentity === current.key && state.caps) return Promise.resolve(state.caps);
         if (!force && state.capIdentity === current.key && state.capPending) return Promise.resolve(null);
 
+        // Keep confirmed controls in place while rechecking the same session.
+        if (state.capIdentity !== current.key || !state.caps) {
+            state.caps = null;
+            removeOwnedActions();
+        }
         state.capIdentity = current.key;
-        state.caps = null;
         var requestId = ++state.capRequest;
         state.capPending = true;
-        removeOwnedActions();
         return request(current.client, 'Capabilities', 'GET').then(function (result) {
             if (requestId !== state.capRequest || identity().key !== current.key) return null;
             state.caps = result && result.enabled === true && result.uiEnabled === true ? result : null;
